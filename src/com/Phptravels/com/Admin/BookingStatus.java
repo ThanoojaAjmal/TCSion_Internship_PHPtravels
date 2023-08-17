@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -23,7 +24,7 @@ public class BookingStatus
 	WebElement login;
 	WebDriverWait wait;
 	
-	
+						// Change booking status from pending to confirmed and verify count in Dashboard
 	 @BeforeTest
 	 public void beforeTest() throws InterruptedException
 	 {
@@ -43,11 +44,18 @@ public class BookingStatus
 		  login.click();
 		  System.out.println("Login clicked ");
 		  Thread.sleep(2000);	
+		  
+		  // Get the booking count before confirmation
+		  WebElement dash_count=driver.findElement(By.xpath("/html/body/main/section/div[2]/div[1]/div[3]/div/div/div/div[1]/div[2]"));
+			 String count=dash_count.getText();
+			 System.out.println("count before confirming "+count);
+		  
 	  }
 	 
-	 @Test 				// Change pending status to confirmed
+	 @Test(priority = 1) 				// Change pending status to confirmed
+	 
   public void pendingToConfirmed() throws InterruptedException 
-	 {
+	 {		
 		 WebElement booking=wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/main/header/ul/li[10]/a")));	  
 		  booking.click(); 	
 		  Thread.sleep(2000);
@@ -55,9 +63,9 @@ public class BookingStatus
 		  String current_url="https://phptravels.net/admin/bookings.php";
 		  Assert.assertEquals(actual_url, current_url);						//Verify Bookings link
 		  
+		  
 		//select booking status as Pending
-//		  WebElement booking_id=driver.findElement((By.xpath("//*[@id=\"search\"]/div[1]/div/input")));
-//		  booking_id.sendKeys("20230811104447");
+
 		  Select booking_status=new Select(driver.findElement(By.name("booking_status"))); 
 		  booking_status.selectByVisibleText("Pending");
 		  System.out.println("Booking status "); 
@@ -66,81 +74,60 @@ public class BookingStatus
 		  WebElement submit=driver.findElement(By.xpath("//button[text()='Search']"));
 	      submit.click();
 	      System.out.println("clicked search ");
-	      String parent=driver.getWindowHandle();
-	      
-	      int details=driver.findElements(By.xpath("/html/body/main/section/div[2]/div/div[2]/figure/blockquote[2]/div/span/a")).size();// Check if element is present
-
+	     
+int details=driver.findElements(By.xpath("/html/body/main/section/div[2]/div/div[2]/figure/blockquote[2]/div/span/a")).size();// Check if element is present
 	      if(details>0)
 	     {
 	       WebElement booking_details=driver.findElement(By.xpath("/html/body/main/section/div[2]/div/div[2]/figure/blockquote[2]/div/span/a"));
 	       booking_details.click();
-		   Thread.sleep(5000);
-		 //saving child windows
-		  	Set<String> childwindows=driver.getWindowHandles();
-		  	Iterator<String> i=childwindows.iterator();
-		  //Switch to child window
-		  	while(i.hasNext())
-		  	{
-		  		String childwindow=i.next();
-		  		if(!parent.equals(childwindow))
-		  		{
-		  		driver.switchTo().window(childwindow);
-		  		String parent1=driver.getWindowHandle();
-		  		
-		  		Thread.sleep(2000);
-		  		WebElement proceed=wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"form\"]")));
-				   proceed.click();
-				   
-				   Actions actions = new Actions(driver);
-				   
-				  
-	/*			   Set <String> allHandles=driver.getWindowhandles();//return all window handles opened by current driver instance
-				   Iterator<String> j=allHandles.iterator();
-				   while(allHandles.hasNext())
-				   {
-				     if (allHandles!=parentHandle)
-				     {
-				         WebDriver popup=driver.switchTo().window(allHandles);*/
-				   
-				   
-				   WebElement payment_window=driver.findElement(By.xpath("/html/body/div[1]/div[1]"));
-				   actions.moveToElement(payment_window);
-	//			   String popupPageSource=popup.getPageSource();
-				   Thread.sleep(2000);
-				   
-				   WebElement paypal=wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe[@id='jsx-iframe-3f5c67777b']")));
-			   driver.switchTo().frame(paypal);//img[@role='presentation']
-				   paypal.click();
-				   
-				  
-//		  		driver.close();								//close child window 
-		  		}
-		  	}
+		   Thread.sleep(2000);
 		   
-/*   //iframe[@id='jsx-iframe-3f5c67777b']
- //*[@id=\"jsx-iframe-68111648a0\"]		 iframe
- 
-  	//*[@id=\"zoid-paypal-buttons-uid_aff5a4983c_mta6mji6mty\"]
-  
-  	 //*[@id="buttons-container"]
-  	   //*[@id="smart-menu"]
-  	    //*[@id="installments-modal"]
-  	    //*[@id="zoid-paypal-buttons-uid_aff5a4983c_mta6mji6mty"]/iframe[2]
-  	     //*[@id="jsx-iframe-68111648a0"]
-  	     //*[@id="buttons-container"]/div/div/div
-  	      //*[@id="buttons-container"]
-  	 //*[@id="jsx-iframe-68111648a0"]
-  	 //*[@id="paypal-button"]
-  	  //img[@role='presentation']
-  	   
-  	  */
-  	
- 
-	     }
-	      else
-	      System.out.println("No bookings made");	
-		  
-	 }
-	 
-	 
+		 //saving window handles
+		   
+		   Set<String> w = driver.getWindowHandles();
+		      // window handles iterate
+		      Iterator<String> t = w.iterator();
+		      String pw = t.next();
+		      String ch = t.next();
+		      // switching child window
+		      driver.switchTo().window(ch);
+		      System.out.println("Child window title "+ driver.getTitle());	      
+		      
+		      Thread.sleep(2000);
+		  	  WebElement proceed=wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"form\"]")));
+			  proceed.click();  
+			  
+			  Actions actions = new Actions(driver);		  
+			   
+			  //Move to payment window   
+			  WebElement payment_window=driver.findElement(By.xpath("/html/body/div[1]/div[1]"));
+			  actions.moveToElement(payment_window);
+			  Thread.sleep(2000);
+				   
+				   
+			  WebElement paypal=wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"paypal-button\"]")));
+			  paypal.click();
+			  Thread.sleep(8000);	      
+		      
+			  // close the child browser window
+		      driver.close();
+		      
+		      // switching parent window
+		      driver.switchTo().window(pw);
+		      System.out.println("Child window title "+ driver.getTitle());	    
+	  	    }  	
+
+	      }	 
+
+@AfterTest
+public void afterTest() throws InterruptedException
+{
+	WebElement dash=driver.findElement(By.xpath("/html/body/main/header/div[1]/a[1]/span"));
+	dash.click();
+	Thread.sleep(2000);
+	 WebElement dash_count=driver.findElement(By.xpath("/html/body/main/section/div[2]/div[1]/div[3]/div/div/div/div[1]/div[2]"));
+	 String count=dash_count.getText();
+	 System.out.println("count after status changed to confirmed "+count);
+	 driver.close();
+}
 }

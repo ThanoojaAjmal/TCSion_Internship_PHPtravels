@@ -3,13 +3,14 @@
 <suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
   <test thread-count="5" name="Default test(failed)">
     <classes>
-      <class name="com.Phptravels.com.Agent.HotelSearch">
+      <class name="com.Phptravels.com.Customer.CustomerLogin">
         <methods>
-          <include name="hotel_Search"/>
-          <include name="beforeTest"/>
           <include name="afterTest"/>
+          <include name="invalid_login"/>
+          <include name="valid_log"/>
+          <include name="beforeTest"/>
         </methods>
-      </class> <!-- com.Phptravels.com.Agent.HotelSearch -->
+      </class> <!-- com.Phptravels.com.Customer.CustomerLogin -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->
